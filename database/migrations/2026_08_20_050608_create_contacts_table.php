@@ -17,6 +17,7 @@ return new class extends Migration
         $table->string('email'); // fix: hapus ->unique()
         $table->string('phone')->nullable();
         $table->text('message');
+        $table->timestamps();
         });
     }
 
