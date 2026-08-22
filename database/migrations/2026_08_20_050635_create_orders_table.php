@@ -12,16 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
-            $table->string('order_number')->unique();
-            $table->string('customer_name');
-            $table->string('email');
-            $table->string('phone')->nullable();
-            $table->decimal('total_amount', 15, 2);
-            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
-            $table->timestamps();
+             $table->id();
+        $table->string('order_number')->unique();
+        $table->string('customer_name');
+        $table->string('email');
+        $table->string('phone')->nullable();
+        $table->text('address'); // fix: kolom address ditambahin
+        $table->decimal('total_amount', 15, 2);
+        $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending');
+        $table->timestamps();
         });
     }
 

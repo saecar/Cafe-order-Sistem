@@ -7,6 +7,7 @@ use App\Models\payment;
 use Illuminate\Http\Request;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Midtrans\Notification;
 
 class PaymentController extends Controller
 {
@@ -18,11 +19,12 @@ class PaymentController extends Controller
         Config::$is3ds = true;
     }
 
-    public function transaction(order $order){
+    public function transaction(order $order)
+    {
         $params = [
             'transaction_details' => [
                 'order_id' => $order->order_number,
-                'gross_amount' => $order->total_amount,
+                'gross_amount' => (int) $order->total_amount,
             ],
             'customer_details' => [
                 'first_name' => $order->customer_name,
@@ -32,69 +34,40 @@ class PaymentController extends Controller
         ];
 
         $snapToken = Snap::getSnapToken($params);
-        $payment = payment::create([
+
+        payment::create([
             'order_id' => $order->id,
             'midtrans_order_id' => $order->order_number,
             'gross_amount' => $order->total_amount,
             'transaction_status' => 'pending',
             'snap_token' => $snapToken,
         ]);
+
         return response()->json(['snap_token' => $snapToken]);
     }
 
-
-
-
-    public function index()
+    // fix: method ini sebelumnya gak ada, padahal dipanggil di routes
+    public function notification(Request $request)
     {
-        //
-    }
+        $notif = new Notification();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        $order = order::where('order_number', $notif->order_id)->firstOrFail();
+        $payment = $order->payment;
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $payment->update([
+            'transaction_id' => $notif->transaction_id,
+            'payment_type' => $notif->payment_type,
+            'transaction_status' => $notif->transaction_status,
+            'raw_response' => $notif->getResponse(),
+            'paid_at' => $notif->transaction_status === 'settlement' ? now() : null,
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(payment $payment)
-    {
-        //
-    }
+        match ($notif->transaction_status) {
+            'settlement', 'capture' => $order->update(['status' => 'processing']),
+            'expire', 'cancel', 'deny' => $order->update(['status' => 'cancelled']),
+            default => null,
+        };
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(payment $payment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, payment $payment)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(payment $payment)
-    {
-        //
+        return response()->json(['message' => 'OK']);
     }
 }

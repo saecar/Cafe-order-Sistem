@@ -5,23 +5,12 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Auth
-|--------------------------------------------------------------------------
-*/
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'loginadmin']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes (customer, gak perlu token)
-|--------------------------------------------------------------------------
-*/
 Route::post('/contact', [ContactController::class, 'store']);
 
 Route::get('/categories', [CategoriesController::class, 'index']);
@@ -33,15 +22,9 @@ Route::get('/products/{product}', [ProductsController::class, 'show']);
 Route::post('/orders', [OrderController::class, 'store']);
 Route::post('/orders/{order}/pay', [PaymentController::class, 'transaction']);
 
-Route::post('/payments/notification', [PaymentController::class, 'notificationHandler']); // webhook Midtrans
+Route::post('/payments/notification', [PaymentController::class, 'notification']);
 
-/*
-|--------------------------------------------------------------------------
-| Admin Routes (wajib Bearer Token)
-|--------------------------------------------------------------------------
-*/
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
-
     Route::get('/contacts', [ContactController::class, 'index']);
     Route::get('/contacts/{contact}', [ContactController::class, 'show']);
     Route::delete('/contacts/{contact}', [ContactController::class, 'destroy']);

@@ -13,7 +13,7 @@ class products extends Model
         'description',
         'price',
         'image',
-        'strock',
+        'stock', // fix: sebelumnya 'strock'
         'is_active',
     ];
 

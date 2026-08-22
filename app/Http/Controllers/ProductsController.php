@@ -107,27 +107,22 @@ class ProductsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StoreProductRequest $request,products $products)
+    public function destroy(Request $request, products $products) // fix: Request biasa, bukan StoreProductRequest
     {
-        if (!$request->bearerToken()){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Unauthorized',
-            ], 401);
-        }
         if ($products->orderItems()->exists()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Cannot delete product with associated order items.',
-            ], 400);
+                ], 400);
         }
+
         if ($products->image) {
             Storage::disk('public')->delete($products->image);
         }
+
         $products->delete();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Product deleted successfully',
-        ]);
+
+        return response()->json(['status' => 'success', 'message' => 'Product deleted successfully']);
+        
     }
 }
