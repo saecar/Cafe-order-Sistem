@@ -19,7 +19,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes (customer, gak perlu token)
+| Public Routes 
 |--------------------------------------------------------------------------
 */
 Route::post('/contact', [ContactController::class, 'store']);
@@ -32,8 +32,10 @@ Route::get('/products/{product}', [ProductsController::class, 'show']);
 
 Route::post('/orders', [OrderController::class, 'store']);
 Route::post('/orders/{order}/pay', [PaymentController::class, 'transaction']);
+Route::get('/orders/{orderNumber}/check-status', [PaymentController::class, 'checkStatus']);
 
 Route::post('/payments/notification', [PaymentController::class, 'notification']); // webhook Midtrans
+
 
 /*
 |--------------------------------------------------------------------------

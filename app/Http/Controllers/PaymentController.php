@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Notification;
+use Midtrans\Transaction;
 
 class PaymentController extends Controller
 {
@@ -46,7 +47,6 @@ class PaymentController extends Controller
         return response()->json(['snap_token' => $snapToken]);
     }
 
-    // fix: method ini sebelumnya gak ada, padahal dipanggil di routes
     public function notification(Request $request)
     {
         $notif = new Notification();
@@ -69,5 +69,33 @@ class PaymentController extends Controller
         };
 
         return response()->json(['message' => 'OK']);
+    }
+
+    public function checkStatus($orderNumber)
+    {
+        $order = order::where('order_number', $orderNumber)->firstOrFail();
+
+        try {
+            $status = Transaction::status($orderNumber);
+
+            if ($order->payment) {
+                $order->payment->update([
+                    'transaction_status' => $status->transaction_status,
+                    'transaction_id' => $status->transaction_id ?? $order->payment->transaction_id,
+                    'payment_type' => $status->payment_type ?? $order->payment->payment_type,
+                    'paid_at' => $status->transaction_status === 'settlement' ? now() : $order->payment->paid_at,
+                ]);
+            }
+
+            match ($status->transaction_status) {
+                'settlement', 'capture' => $order->update(['status' => 'processing']),
+                'expire', 'cancel', 'deny' => $order->update(['status' => 'cancelled']),
+                default => null,
+            };
+        } catch (\Exception $e) {
+            // Transaksi belum kebentuk di Midtrans / masih pending, biarin aja
+        }
+
+        return response()->json(['status' => $order->fresh()->status]);
     }
 }
