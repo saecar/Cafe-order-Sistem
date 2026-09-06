@@ -125,4 +125,11 @@ class ProductsController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Product deleted successfully']);
         
     }
+
+        public function adminIndex()
+    {
+        $products = products::with('category')->orderBy('name')->get();
+
+        return response()->json(['status' => 'success', 'data' => $products]);
+    }
 }

@@ -43,7 +43,9 @@ Route::post('/payments/notification', [PaymentController::class, 'notification']
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
-
+    Route::get('/products', [ProductsController::class, 'adminIndex']);
+    Route::get('/dashboard/best-seller', [DashboardController::class, 'bestSeller']);
+    Route::get('/dashboard/profit-recap', [DashboardController::class, 'profitRecap']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
     Route::get('/contacts', [ContactController::class, 'index']);

@@ -12,6 +12,7 @@ class order_item extends Model
         'quantity',
         'price',
         'subtotal',
+        'cost_price', // fix: sebelumnya tidak ada
     ];
 
     function order()

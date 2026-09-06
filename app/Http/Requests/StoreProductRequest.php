@@ -23,6 +23,7 @@ class StoreProductRequest extends FormRequest
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048',
             'is_active' => 'boolean',
+            'cost_price' => 'required|numeric|min:0', // fix: sebelumnya tidak ada
         ];
     }
 

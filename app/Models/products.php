@@ -15,6 +15,7 @@ class products extends Model
         'image',
         'stock', // fix: sebelumnya 'strock'
         'is_active',
+        'cost_price', // fix: sebelumnya tidak ada
     ];
 
     protected $casts = [
