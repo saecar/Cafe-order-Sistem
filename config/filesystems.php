@@ -38,10 +38,14 @@ return [
             'report' => false,
         ],
 
+        // Diarahkan langsung ke public/uploads — folder ini yang di-mount
+        // sebagai volume persisten di Wasmer (lihat app.yaml). Tidak lagi
+        // lewat storage/app/public + symlink, karena filesystem Wasmer
+        // Edge ephemeral kecuali di dalam folder yang di-mount.
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'root' => public_path('uploads'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/uploads',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -70,6 +74,10 @@ return [
     | Here you may configure the symbolic links that will be created when the
     | `storage:link` Artisan command is executed. The array keys should be
     | the locations of the links and the values should be their targets.
+    |
+    | Catatan: tidak lagi dipakai untuk disk 'public' (lihat di atas), tapi
+    | dibiarkan di sini kalau suatu saat butuh symlink lain. Aman untuk
+    | dihapus juga kalau tidak dipakai sama sekali.
     |
     */
 
