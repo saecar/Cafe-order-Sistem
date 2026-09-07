@@ -15,13 +15,21 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'login', 'logout', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173',  'https://cafe-frontend-ltci-beta.vercel.app'],
+    // Domain production Vercel kamu. Tambahin domain lain di sini kalau ada
+    // (custom domain, dst).
+    'allowed_origins' => [
+        'https://cafe-frontend-umber.vercel.app',
+    ],
 
-    'allowed_origins_patterns' => [],
+    // Biar semua preview deployment Vercel (*-itci, *-git-branch, dst) juga
+    // otomatis kena izin, tanpa perlu update allowed_origins tiap deploy baru.
+    'allowed_origins_patterns' => [
+        '#^https://cafe-frontend.*\.vercel\.app$#',
+    ],
 
     'allowed_headers' => ['*'],
 
@@ -29,6 +37,7 @@ return [
 
     'max_age' => 0,
 
+    // Tetap false karena kamu pakai Bearer token di localStorage, bukan cookie.
     'supports_credentials' => false,
 
 ];
